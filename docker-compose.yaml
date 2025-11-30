@@ -1,0 +1,29 @@
+version: "3.9"        
+
+services:
+  express-app:
+    build: .                                 
+    container_name: express-app              
+    ports:
+      - "8080:8080"                         
+    restart: unless-stopped                  
+    labels:                                 
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower:latest      
+    container_name: watchtower
+    restart: unless-stopped                  
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=60           
+      - WATCHTOWER_CLEANUP=true               
+      - WATCHTOWER_INCLUDE_STOPPED=false
+    command: >                              
+      --label-enable true
+      express-app
+
+networks:
+  default:
+    name: express-network
